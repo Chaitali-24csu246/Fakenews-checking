@@ -9,6 +9,7 @@ It allows users to **paste news text or upload a TXT/CSV file** (max 100 words) 
 It relies on hugging face model for primary detection, but in case of failure, NB model kicks in.
 ---
 NOTE: This repository also includes local model training file and related datasets. THEY ARE NOT REQD. FOR CODE EXECUTION
+NOTE: use news.txt for testing as csv and txt files are the only ones compatible
 ## **Features**
 
 -  Uses both a local NB model and HF BERT model.
