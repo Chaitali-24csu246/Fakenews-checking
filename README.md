@@ -61,4 +61,4 @@ joblib
 
 -Replace the HF_API_TOKEN in app_hf_nb.py with your token.
 -RUN FILE FROM TERMINAL
--streamlit run app_hf_nb.py
+-streamlit run FakeNews.py
