@@ -21,6 +21,19 @@ NOTE: use news.txt for testing as csv and txt files are the only ones compatible
 - Streamlit-based UI for easy web interaction.
 
 ---
+Requirements
+
+Python 3.9+
+
+Streamlit
+
+pandas
+
+nltk
+
+requests
+
+joblib
 
 ## **Setup & Installation**
 
