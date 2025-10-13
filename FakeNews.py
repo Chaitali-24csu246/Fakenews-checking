@@ -1,67 +1,83 @@
-#Fake news text detector using kaggle datasets
-# fake_news_detector_real.py
+# app_hf_nb.py
 import streamlit as st
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 import nltk
+import requests
+import os
+import joblib
 
-nltk.download('punkt')
+# Streamlit page setup
+st.set_page_config(page_title="Fake News Detector (Hybrid)", page_icon="📰")
+st.title("📰 Fake News Detector (Hybrid: HF + NB)")
+st.write("Paste news text or upload a file (TXT/CSV, max 100 words) to check if it’s likely real or fake.")
 
-st.set_page_config(page_title="Fake News Detector", page_icon="📰")
-st.title("📰 Fake News Detector")
-st.write("Paste news text or upload a file to check if it’s likely real or fake.")
+# --- Hugging Face API setup ---
+HF_API_URL = "https://api-inference.huggingface.co/models/Pulk17/Fake-News-Detection"
+HF_API_TOKEN = "ADD YOUR HUGGING FACE API TOKEN READ ONLY HERE"  # Replace with your HF token
+headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
 
-# --- Load dataset ---
-@st.cache_data(show_spinner=True)
-def load_dataset(fake_path="archive/Fake.csv", real_path="archive/True.csv"):
-    fake_df = pd.read_csv(fake_path)
-    fake_df['label'] = "Fake"
-    real_df = pd.read_csv(real_path)
-    real_df['label'] = "Real"
-    combined = pd.concat([fake_df, real_df], ignore_index=True)
-    combined = combined[['text','label']]  # Keep only relevant columns
-    combined = combined.dropna(subset=['text'])
-    return combined
+# --- NLTK setup for file processing ---
+nltk_data_dir = os.path.join(os.path.dirname(__file__), "nltk_data")
+os.makedirs(nltk_data_dir, exist_ok=True)
+nltk.data.path.append(nltk_data_dir)
+nltk.download('punkt', quiet=True)
 
-df = load_dataset()
-
-# --- Train classifier ---
-@st.cache_resource(show_spinner=True)
-def train_model(data):
-    X = data['text']
-    y = data['label']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    model = make_pipeline(TfidfVectorizer(stop_words='english', max_df=0.9), MultinomialNB())
-    model.fit(X_train, y_train)
-    acc = accuracy_score(y_test, model.predict(X_test))
-    return model, acc
-
-model, accuracy = train_model(df)
-st.write(f"Model accuracy on test data: {accuracy*100:.1f}%")
-
-# --- File preprocessing ---
+# --- Preprocess uploaded file ---
 def preprocess_file(file):
+    text = ""
     if file.type == "text/csv":
         df_file = pd.read_csv(file)
-        text = " ".join(df_file.iloc[0].astype(str).values)  # take first row
+        text = " ".join(df_file.iloc[0].astype(str).values)
     else:
         text = file.read().decode("utf-8")
     words = nltk.word_tokenize(text)
-    text_limited = " ".join(words[:100])  # limit to 100 words
-    return text_limited
+    return " ".join(words[:100])
+
+# --- Hugging Face prediction ---
+def predict_bert(text):
+    payload = {"inputs": text}
+    response = requests.post(HF_API_URL, headers=headers, json=payload)
+    try:
+        hf_output = response.json()       # Outer list
+        hf_output = hf_output[0]          # Inner list
+        best = max(hf_output, key=lambda x: x['score'])  # Pick the one with highest score
+        raw_label = best['label']
+        confidence = best['score']
+        label_map = {"LABEL_0": "Fake", "LABEL_1": "Real"}
+        label = label_map.get(raw_label, raw_label)
+        return label, confidence
+    except Exception as e:
+        st.error(f"Hugging Face API error: {response.text}")
+        return None, 0
+
+# --- Load NB model ---
+nb_model = joblib.load("fake_news_model.joblib")
+
+# --- NB prediction function ---
+def predict_nb(text):
+    probs = nb_model.predict_proba([text])[0]
+    label = nb_model.classes_[probs.argmax()]
+    confidence = max(probs)
+    return label, confidence
+
+# --- Ensemble function ---
+def ensemble_predict(text):
+    nb_label, nb_conf = predict_nb(text)
+    bert_label, bert_conf = predict_bert(text)
+
+    # If both agree, return that
+    if nb_label == bert_label:
+        return nb_label, (nb_conf + bert_conf)/2
+    # Otherwise, return the one with higher confidence
+    if nb_conf > bert_conf:
+        return nb_label, nb_conf
+    else:
+        return bert_label, bert_conf
 
 # --- User input ---
-st.subheader("Check a single news article")
 news_text = st.text_area("Paste news text here:")
+uploaded_file = st.file_uploader("Or upload a file (txt or csv, max 100 words)", type=["txt","csv"])
 
-st.subheader("Or upload a file (txt or csv, max 100 words)")
-uploaded_file = st.file_uploader("Choose a file", type=["txt","csv"])
-
-# --- Prediction ---
 if st.button("Check News"):
     if news_text.strip() != "":
         text_to_check = news_text
@@ -72,10 +88,10 @@ if st.button("Check News"):
         st.warning("Please enter news text or upload a file.")
         st.stop()
     
-    prediction = model.predict([text_to_check])[0]
-    prediction_proba = model.predict_proba([text_to_check])[0]
-    confidence = max(prediction_proba) * 100
-    
-    st.markdown(f"**Prediction:** {prediction}")
-    st.markdown(f"**Confidence:** {confidence:.1f}%")
+    # --- Prediction ---
+    label, confidence = ensemble_predict(text_to_check)
+    if label:
+        st.markdown(f"**Prediction:** {label}")
+        st.markdown(f"**Confidence:** {confidence*100:.1f}%")
+
 
