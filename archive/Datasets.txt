@@ -1,1 +1,2 @@
-
+Datasets could not be attached as they exceeded limit, to access, download from, https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset and run train.py from main
+make sure to save in archive
