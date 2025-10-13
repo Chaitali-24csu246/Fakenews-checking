@@ -26,24 +26,25 @@ NOTE: This repository also includes local model training file and related datase
 ### 1. Clone the repository
 
 
-git clone <your-repo-url>
-cd <your-repo-folder>
+-git clone <your-repo-url>
+-cd <your-repo-folder>
 
-#create venv in terminal
-python -m venv venv
-source venv/bin/activate  # macOS/Linux
-venv\Scripts\activate     # Windows
-#install dependencies
-pip install -r requirements.txt
-#optional mac os acceleration
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-Set up Hugging Face API token
+-#create venv in terminal
 
-Go to Hugging Face
+-python -m venv venv
+-source venv/bin/activate  # macOS/Linux
+-venv\Scripts\activate     # Windows
+-#install dependencies
+-pip install -r requirements.txt
+-#optional mac os acceleration
+-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+-Set up Hugging Face API token
+
+-Go to Hugging Face
  and login/signup.
 
-Generate an API token.read only
+-Generate an API token.read only
 
-Replace the HF_API_TOKEN in app_hf_nb.py with your token.
-RUN FILE FROM TERMINAL
-streamlit run app_hf_nb.py
+-Replace the HF_API_TOKEN in app_hf_nb.py with your token.
+-RUN FILE FROM TERMINAL
+-streamlit run app_hf_nb.py
