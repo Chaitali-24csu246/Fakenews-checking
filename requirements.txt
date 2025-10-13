@@ -1,0 +1,16 @@
+
+---
+
+## **requirements.txt**
+
+```text
+streamlit==1.25.0
+pandas==2.1.0
+nltk==3.9.1
+requests==2.31.0
+joblib==1.3.2
+
+# Optional for faster HF/BERT inference on Mac M1/M2
+# torch==2.2.0  # with MPS support
+# torchvision==0.18.0
+# torchaudio==2.3.0
