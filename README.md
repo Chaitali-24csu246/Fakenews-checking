@@ -1,5 +1,6 @@
 # Hybrid Fake News Detector
-
+# PREFERABLY RUN FAKENEWS.PY VIA GITHUB AS STREAMLIT HOSTED IS GIVING ERRORS
+# FAKENEWSDEPLOY IS NOT FOR GITHUB RUNNING
 This project is a **hybrid Fake News Detector** built with **Streamlit**, combining:
 
 1. **Naive Bayes (NB) model** trained locally on kaggle dataset(https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset)
@@ -10,6 +11,7 @@ It relies on hugging face model for primary detection, but in case of failure, N
 ---
 NOTE: This repository also includes local model training file and related datasets. THEY ARE NOT REQD. FOR CODE EXECUTION
 NOTE: use news.txt for testing as csv and txt files are the only ones compatible
+
 ## **Features**
 
 -  Uses both a local NB model and HF BERT model.
