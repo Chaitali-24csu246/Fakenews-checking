@@ -11,7 +11,7 @@ It relies on hugging face model for primary detection, but in case of failure, N
 ---
 NOTE: This repository also includes local model training file and related datasets. THEY ARE NOT REQD. FOR CODE EXECUTION
 NOTE: use news.txt for testing as csv and txt files are the only ones compatible
-
+Deployment link: https://fakenewsdetectionibmaicteedunetchaitali.streamlit.app/
 ## **Features**
 
 -  Uses both a local NB model and HF BERT model.
