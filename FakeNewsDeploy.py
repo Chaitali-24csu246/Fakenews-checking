@@ -119,7 +119,14 @@ headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
 nltk_data_dir = os.path.join(os.path.dirname(__file__), "nltk_data")
 os.makedirs(nltk_data_dir, exist_ok=True)
 nltk.data.path.append(nltk_data_dir)
-nltk.download('punkt', quiet=True)
+
+# Download both punkt and punkt_tab (for new NLTK versions)
+try:
+    nltk.download('punkt', quiet=True)
+    nltk.download('punkt_tab', quiet=True)
+except:
+    pass
+
 
 # --- Preprocess uploaded file ---
 def preprocess_file(file):
